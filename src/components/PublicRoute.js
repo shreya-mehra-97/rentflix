@@ -1,18 +1,17 @@
-import React, { useContext} from 'react';
-import { Route, Redirect } from 'react-router-dom';
+import React, { useContext } from 'react';
+import { Navigate, useLocation } from 'react-router-dom';
 import { AuthContext } from "./Auth";
 
-const PublicRoute = ({ component: Component, restricted, ...rest }) => {
+const PublicRoute = ({ children, restricted = false }) => {
     const { currentUser } = useContext(AuthContext);
-    return (
-        // restricted = false meaning public route
-        // restricted = true meaning restricted route
-        <Route {...rest} render={props => (
-            currentUser && restricted ?
-                <Redirect to="/home" />
-                : <Component {...props} />
-        )} />
-    );
+    const location = useLocation();
+
+    if (currentUser && restricted) {
+        // If user is logged in and trying to access restricted public route (like login page)
+        return <Navigate to="/home" replace state={{ from: location }} />;
+    }
+
+    return children;
 };
 
 export default PublicRoute;
